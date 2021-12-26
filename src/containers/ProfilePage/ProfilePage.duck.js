@@ -134,6 +134,7 @@ export const queryUserListings = userId => (dispatch, getState, sdk) => {
     })
     .then(response => {
       // Pick only the id and type properties from the response listings
+      console.log('\n\nUser Private Data:', response);
       const listingRefs = response.data.data.map(({ id, type }) => ({ id, type }));
       dispatch(addMarketplaceEntities(response));
       dispatch(queryListingsSuccess(listingRefs));

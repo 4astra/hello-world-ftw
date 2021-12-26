@@ -12,7 +12,12 @@ import {
   LISTING_PAGE_DRAFT_VARIANT,
   LISTING_PAGE_PENDING_APPROVAL_VARIANT,
 } from '../../util/urlHelpers';
-import { fetchCurrentUser, fetchCurrentUserHasOrdersSuccess } from '../../ducks/user.duck';
+import {
+  currentUserShowSuccess,
+  fetchCurrentUser,
+  fetchCurrentUserHasOrdersSuccess,
+} from '../../ducks/user.duck';
+import { updateProfileSuccess } from '../ProfileSettingsPage/ProfileSettingsPage.duck';
 
 const { UUID } = sdkTypes;
 
@@ -22,6 +27,9 @@ export const SET_INITIAL_VALUES = 'app/ListingPage/SET_INITIAL_VALUES';
 
 export const SHOW_LISTING_REQUEST = 'app/ListingPage/SHOW_LISTING_REQUEST';
 export const SHOW_LISTING_ERROR = 'app/ListingPage/SHOW_LISTING_ERROR';
+
+export const ADD_TO_WISHLIST_REQUEST = 'app/ListingPage/ADD_TO_WISHLIST_REQUEST';
+export const ADD_TO_WISHLIST_ERROR = 'app/ListingPage/ADD_TO_WISHLIST_ERROR';
 
 export const FETCH_REVIEWS_REQUEST = 'app/ListingPage/FETCH_REVIEWS_REQUEST';
 export const FETCH_REVIEWS_SUCCESS = 'app/ListingPage/FETCH_REVIEWS_SUCCESS';
@@ -120,6 +128,17 @@ export const showListingError = e => ({
   payload: e,
 });
 
+export const addToWishlistRequest = params => ({
+  type: ADD_TO_WISHLIST_REQUEST,
+  payload: params,
+});
+
+export const addToWishlistError = e => ({
+  type: ADD_TO_WISHLIST_ERROR,
+  error: true,
+  payload: e,
+});
+
 export const fetchReviewsRequest = () => ({ type: FETCH_REVIEWS_REQUEST });
 export const fetchReviewsSuccess = reviews => ({ type: FETCH_REVIEWS_SUCCESS, payload: reviews });
 export const fetchReviewsError = error => ({
@@ -213,6 +232,34 @@ export const fetchReviews = listingId => (dispatch, getState, sdk) => {
     .catch(e => {
       dispatch(fetchReviewsError(storableError(e)));
     });
+};
+
+export const addWishlistToProfile = actionPayload => {
+  return (dispatch, getState, sdk) => {
+    dispatch(addToWishlistRequest());
+
+    const queryParams = {
+      expand: true,
+    };
+    return sdk.currentUser
+      .updateProfile(actionPayload, queryParams)
+      .then(response => {
+        dispatch(updateProfileSuccess(response));
+        // console.log('response:', response);
+        const entities = denormalisedResponseEntities(response);
+        if (entities.length !== 1) {
+          throw new Error('Expected a resource in the sdk.currentUser.updateProfile response');
+        }
+        const currentUser = entities[0];
+
+        // Update current user in state.user.currentUser through user.duck.js
+        dispatch(currentUserShowSuccess(currentUser));
+      })
+      .catch(e => {
+        console.log('Error:', e);
+        dispatch(addToWishlistError(storableError(e)));
+      });
+  };
 };
 
 const timeSlotsRequest = params => (dispatch, getState, sdk) => {

@@ -145,7 +145,7 @@ class MainPanel extends Component {
     const queryParams = values
       ? { ...urlQueryParams, [urlParam]: values }
       : omit(urlQueryParams, urlParam);
-
+    // console.log('Sort with params:', urlParam);
     history.push(createResourceLocatorString('SearchPage', routeConfiguration(), {}, queryParams));
   }
 

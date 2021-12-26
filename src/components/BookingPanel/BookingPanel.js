@@ -69,6 +69,7 @@ const BookingPanel = props => {
     lineItems,
     fetchLineItemsInProgress,
     fetchLineItemsError,
+    onAddWishlist
   } = props;
 
   const price = listing.attributes.price;
@@ -136,6 +137,10 @@ const BookingPanel = props => {
             fetchLineItemsError={fetchLineItemsError}
           />
         ) : null}
+        <div className={css.addToWishlistTop}></div>
+        <Button rootClassName={css.onAddToWishList} onClick={onAddWishlist}>
+          <FormattedMessage id="ListingPage.addToWishlist" />
+        </Button>
       </ModalInMobile>
       <div className={css.openBookingForm}>
         <div className={css.priceContainer}>
@@ -159,6 +164,10 @@ const BookingPanel = props => {
             <FormattedMessage id="BookingPanel.closedListingButtonText" />
           </div>
         ) : null}
+        <div className={css.addToWishlistTop}></div>
+        <Button rootClassName={css.onAddToWishList} onClick={onAddWishlist}>
+          <FormattedMessage id="ListingPage.addToWishlist" />
+        </Button>
       </div>
     </div>
   );
@@ -195,6 +204,7 @@ BookingPanel.propTypes = {
   lineItems: array,
   fetchLineItemsInProgress: bool.isRequired,
   fetchLineItemsError: propTypes.error,
+  onAddWishlist: func.isRequired,
 
   // from withRouter
   history: shape({

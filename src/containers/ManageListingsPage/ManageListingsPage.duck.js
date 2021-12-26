@@ -1,7 +1,7 @@
 import { updatedEntities, denormalisedEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
 import { parse } from '../../util/urlHelpers';
-
+import _ from 'lodash';
 // Pagination page size might need to be dynamic on responsive page layouts
 // Current design has max 3 columns 42 is divisible by 2 and 3
 // So, there's enough cards to fill all columns on full pagination pages
@@ -77,6 +77,7 @@ const manageListingsPageReducer = (state = initialState, action = {}) => {
         ...state,
         currentPageResultIds: resultIds(payload.data),
         pagination: payload.data.meta,
+        listings: payload.data.data,
         queryInProgress: false,
       };
     case FETCH_LISTINGS_ERROR:
@@ -221,7 +222,6 @@ export const queryListingsError = e => ({
 // Throwing error for new (loadData may need that info)
 export const queryOwnListings = queryParams => (dispatch, getState, sdk) => {
   dispatch(queryListingsRequest(queryParams));
-
   const { perPage, ...rest } = queryParams;
   const params = { ...rest, per_page: perPage };
 
@@ -236,6 +236,28 @@ export const queryOwnListings = queryParams => (dispatch, getState, sdk) => {
       dispatch(queryListingsError(storableError(e)));
       throw e;
     });
+};
+
+export const queryMyWishList = queryParams => (dispatch, getState, sdk) => {
+  const privateData =
+    queryParams && queryParams.attributes ? queryParams.attributes.profile.privateData : null;
+  if (!_.isEmpty(privateData)) {
+    let wishlist = privateData['wishlist'].split(',');
+    const params = { ids: wishlist, per_page: null };
+
+    return sdk.listings
+      .query(params)
+      .then(response => {
+        dispatch(queryListingsSuccess(response));
+        dispatch(addOwnEntities(response));
+        console.log("\n\n\n queryListingsSuccess: ", response);
+        return response.data.data;
+      })
+      .catch(e => {
+        dispatch(queryListingsError(storableError(e)));
+        throw e;
+      });
+  }
 };
 
 export const closeListing = listingId => (dispatch, getState, sdk) => {

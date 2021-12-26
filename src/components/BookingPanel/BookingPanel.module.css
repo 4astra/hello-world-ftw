@@ -202,3 +202,19 @@
   padding: 15px 24px 15px 24px;
   text-align: center;
 }
+
+.addToWishlist {
+  @apply --marketplaceTinyFontStyles;
+  font-weight: var(--fontWeightMedium);
+
+  @apply --marketplaceButtonStylesPrimary;
+
+  /* Clear padding that is set for link elements looking like buttons */
+  /* padding: 0; */
+  /* margin-top: 20px; */
+  padding: 0;
+}
+
+.addToWishlistTop {
+  margin-top: 15px;
+}

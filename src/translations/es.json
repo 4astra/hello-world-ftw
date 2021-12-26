@@ -386,6 +386,7 @@
   "ListingPage.schemaTitle": "{title} - {price} | {siteTitle}",
   "ListingPage.viewImagesButton": "Ver fotos ({count})",
   "ListingPage.yourHostHeading": "Tu anfitrión",
+  "ListingPage.addToWishlist": "Añadir a la lista de deseos",
   "LoadableComponentErrorBoundaryPage.title": "Página no localizada",
   "LoadableComponentErrorBoundaryPage.heading": "Ups, no pudimos localizar la página.",
   "LoadableComponentErrorBoundaryPage.description": "Parece ser que la aplicación necesita una actualización. Por favor actualiza la página o regresa a {link}.",

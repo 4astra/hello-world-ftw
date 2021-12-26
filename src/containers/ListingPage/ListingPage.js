@@ -19,6 +19,7 @@ import {
 import { formatMoney } from '../../util/currency';
 import { createResourceLocatorString, findRouteByRouteName } from '../../util/routes';
 import {
+  ensureCurrentUser,
   ensureListing,
   ensureOwnListing,
   ensureUser,
@@ -38,10 +39,16 @@ import {
   LayoutWrapperFooter,
   Footer,
   BookingPanel,
+  Button,
 } from '../../components';
 import { TopbarContainer, NotFoundPage } from '../../containers';
 
-import { sendEnquiry, fetchTransactionLineItems, setInitialValues } from './ListingPage.duck';
+import {
+  sendEnquiry,
+  fetchTransactionLineItems,
+  setInitialValues,
+  addWishlistToProfile,
+} from './ListingPage.duck';
 import SectionImages from './SectionImages';
 import SectionAvatar from './SectionAvatar';
 import SectionHeading from './SectionHeading';
@@ -52,6 +59,7 @@ import SectionHostMaybe from './SectionHostMaybe';
 import SectionRulesMaybe from './SectionRulesMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
 import css from './ListingPage.module.css';
+import _ from 'lodash';
 
 const MIN_LENGTH_FOR_LONG_WORDS_IN_TITLE = 16;
 
@@ -341,6 +349,45 @@ export class ListingPageComponent extends Component {
       }
     };
 
+    const handleAddToWishList = () => {
+      const { params, currentUser, history } = this.props;
+      const listingId = params.id; //new UUID(params.id);
+      if (!currentUser) {
+        const state = { from: `${location.pathname}${location.search}${location.hash}` };
+
+        // We need to log in before use this
+        // that modal does open when user is redirected back to this listingpage
+        // callSetInitialValues(setInitialValues);
+
+        // signing and return back to listingPage.
+        history.push(createResourceLocatorString('LoginPage', routeConfiguration(), {}, {}), state);
+      } else {
+        const { currentUser, onAddWishlistToProfile } = this.props;
+        const user = ensureCurrentUser(currentUser);
+        const privateData = user.attributes.profile.privateData;
+        if (_.isEmpty(privateData)) {
+          privateData['wishlist'] = listingId;
+        } else {
+          let wishlist = privateData['wishlist'] + '';
+          if (!wishlist.includes(listingId)) {
+            wishlist = wishlist + ',' + listingId;
+            privateData['wishlist'] = wishlist;
+          }
+        }
+        const { firstName, lastName, bio: rawBio } = user.attributes.profile;
+        // Ensure that the optional bio is a string
+        const bio = rawBio || '';
+
+        const profile = {
+          firstName,
+          lastName,
+          bio,
+        };
+        const updateValues = { ...profile, privateData: privateData };
+        onAddWishlistToProfile(updateValues).then(_ => {});
+      }
+    };
+
     const listingImages = (listing, variantName) =>
       (listing.images || [])
         .map(image => {
@@ -473,6 +520,7 @@ export class ListingPageComponent extends Component {
                   lineItems={lineItems}
                   fetchLineItemsInProgress={fetchLineItemsInProgress}
                   fetchLineItemsError={fetchLineItemsError}
+                  onAddWishlist={handleAddToWishList}
                 />
               </div>
             </div>
@@ -542,6 +590,7 @@ ListingPageComponent.propTypes = {
   lineItems: array,
   fetchLineItemsInProgress: bool.isRequired,
   fetchLineItemsError: propTypes.error,
+  onAddWishlistToProfile: func.isRequired,
 };
 
 const mapStateToProps = state => {
@@ -602,6 +651,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchTransactionLineItems(bookingData, listingId, isOwnListing)),
   onSendEnquiry: (listingId, message) => dispatch(sendEnquiry(listingId, message)),
   onInitializeCardPaymentData: () => dispatch(initializeCardPaymentData()),
+  onAddWishlistToProfile: data => dispatch(addWishlistToProfile(data)),
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

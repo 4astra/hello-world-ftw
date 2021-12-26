@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { array } from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl, intlShape } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isScrollingDisabled } from '../../ducks/UI.duck';
+import { types as sdkTypes } from '../../util/sdkLoader';
 import {
   ManageListingCard,
   Page,
@@ -17,8 +18,15 @@ import {
   Footer,
 } from '../../components';
 import { TopbarContainer } from '../../containers';
+import _ from 'lodash';
+const { UUID } = sdkTypes;
 
-import { closeListing, openListing, getOwnListingsById } from './ManageListingsPage.duck';
+import {
+  closeListing,
+  openListing,
+  getOwnListingsById,
+  queryMyWishList,
+} from './ManageListingsPage.duck';
 import css from './ManageListingsPage.module.css';
 
 export class ManageListingsPageComponent extends Component {
@@ -27,6 +35,11 @@ export class ManageListingsPageComponent extends Component {
 
     this.state = { listingMenuOpen: null };
     this.onToggleMenu = this.onToggleMenu.bind(this);
+  }
+
+  componentDidMount() {
+    const { currentUser, onGetMyWishList } = this.props;
+    onGetMyWishList(currentUser);
   }
 
   onToggleMenu(listing) {
@@ -169,7 +182,8 @@ ManageListingsPageComponent.propTypes = {
     listingId: propTypes.uuid.isRequired,
     error: propTypes.error.isRequired,
   }),
-  listings: arrayOf(propTypes.ownListing),
+  // listings: arrayOf(propTypes.ownListing),
+  listings: array.isRequired,
   onCloseListing: func.isRequired,
   onOpenListing: func.isRequired,
   openingListing: shape({ uuid: string.isRequired }),
@@ -182,7 +196,8 @@ ManageListingsPageComponent.propTypes = {
   queryListingsError: propTypes.error,
   queryParams: object,
   scrollingDisabled: bool.isRequired,
-
+  currentUser: propTypes.currentUser,
+  onGetMyWishList: func.isRequired,
   // from injectIntl
   intl: intlShape.isRequired,
 };
@@ -190,6 +205,7 @@ ManageListingsPageComponent.propTypes = {
 const mapStateToProps = state => {
   const {
     currentPageResultIds,
+    listings,
     pagination,
     queryInProgress,
     queryListingsError,
@@ -199,7 +215,11 @@ const mapStateToProps = state => {
     closingListing,
     closingListingError,
   } = state.ManageListingsPage;
-  const listings = getOwnListingsById(state, currentPageResultIds);
+
+  // let listings = state.ownListing; //getOwnListingsById(state, currentPageResultIds);
+  // console.log('My listing:', listings);
+  const { currentUser } = state.user;
+
   return {
     currentPageResultIds,
     listings,
@@ -212,12 +232,14 @@ const mapStateToProps = state => {
     openingListingError,
     closingListing,
     closingListingError,
+    currentUser,
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   onCloseListing: listingId => dispatch(closeListing(listingId)),
   onOpenListing: listingId => dispatch(openListing(listingId)),
+  onGetMyWishList: wishlists => dispatch(queryMyWishList(wishlists)),
 });
 
 const ManageListingsPage = compose(

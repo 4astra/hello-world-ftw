@@ -386,6 +386,7 @@
   "ListingPage.schemaTitle": "{title} - {price} | {siteTitle}",
   "ListingPage.viewImagesButton": "Voir les images ({count})",
   "ListingPage.yourHostHeading": "Votre hôte",
+  "ListingPage.addToWishlist": "Ajouter à la liste de souhaits",
   "LoadableComponentErrorBoundaryPage.title": "La page n'a pu être récupérée",
   "LoadableComponentErrorBoundaryPage.heading": "Oops, nous n'avons pas pu récupérer la page.",
   "LoadableComponentErrorBoundaryPage.description": "Il semble que l'application doive être mise à jour ! Veuillez rafraîchir la page ou retourner sur {link}.",

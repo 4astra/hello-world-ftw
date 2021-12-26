@@ -142,12 +142,12 @@ export const updateProfile = actionPayload => {
       include: ['profileImage'],
       'fields.image': ['variants.square-small', 'variants.square-small2x'],
     };
-
+    console.log('updateProfile response:', actionPayload);
     return sdk.currentUser
       .updateProfile(actionPayload, queryParams)
       .then(response => {
         dispatch(updateProfileSuccess(response));
-
+        console.log('updateProfile response:', response);
         const entities = denormalisedResponseEntities(response);
         if (entities.length !== 1) {
           throw new Error('Expected a resource in the sdk.currentUser.updateProfile response');
