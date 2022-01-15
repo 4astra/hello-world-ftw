@@ -3,6 +3,7 @@ import defaultLocationSearches from './default-location-searches';
 import { defaultMCC, stripePublishableKey, stripeCountryDetails } from './stripe-config';
 import { currencyConfiguration } from './currency-config';
 
+
 const env = process.env.REACT_APP_ENV;
 const dev = process.env.REACT_APP_ENV === 'development';
 
@@ -65,17 +66,17 @@ const sdkBaseUrl = process.env.REACT_APP_SHARETRIBE_SDK_BASE_URL;
 const sdkTransitVerbose = process.env.REACT_APP_SHARETRIBE_SDK_TRANSIT_VERBOSE === 'true';
 
 // Marketplace currency.
-// It should match one of the currencies listed in currency-config.js
-const currencyConf = process.env.REACT_APP_SHARETRIBE_MARKETPLACE_CURRENCY;
-const currency = currencyConf ? currencyConf.toUpperCase() : currencyConf;
 
+// Currency formatting options.
+// See: https://github.com/yahoo/react-intl/wiki/API#formatnumber
+const currency = process.env.REACT_APP_SHARETRIBE_MARKETPLACE_CURRENCY;
 // Currency formatting options.
 // See: https://github.com/yahoo/react-intl/wiki/API#formatnumber
 const currencyConfig = currencyConfiguration(currency);
 
 // Listing minimum price in currency sub units, e.g. cents.
 // 0 means no restriction to the price
-const listingMinimumPriceSubUnits = 0;
+const listingMinimumPriceSubUnits = 500;
 
 // Sentry DSN (Data Source Name), a client key for authenticating calls to Sentry
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
