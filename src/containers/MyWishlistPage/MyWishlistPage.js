@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes, { array } from 'prop-types';
+import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { FormattedMessage, injectIntl, intlShape } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isScrollingDisabled } from '../../ducks/UI.duck';
-import { types as sdkTypes } from '../../util/sdkLoader';
 import {
   ManageListingCard,
   Page,
@@ -17,18 +16,28 @@ import {
   LayoutWrapperFooter,
   Footer,
 } from '../../components';
-import { TopbarContainer } from '../../containers';
+import { TopbarContainer } from '..';
 import _ from 'lodash';
 
-import { closeListing, openListing, getOwnListingsById } from './ManageListingsPage.duck';
-import css from './ManageListingsPage.module.css';
+import {
+  closeListing,
+  openListing,
+  // getOwnListingsById,
+  queryMyWishList,
+} from './MyWishlistPage.duck';
+import css from './MyWishlistPage.module.css';
 
-export class ManageListingsPageComponent extends Component {
+export class MyWishlistPageComponent extends Component {
   constructor(props) {
     super(props);
 
     this.state = { listingMenuOpen: null };
     this.onToggleMenu = this.onToggleMenu.bind(this);
+  }
+
+  componentDidMount() {
+    const { currentUser, onGetMyWishList } = this.props;
+    onGetMyWishList(currentUser);
   }
 
   onToggleMenu(listing) {
@@ -78,7 +87,7 @@ export class ManageListingsPageComponent extends Component {
       listingsAreLoaded && pagination.totalItems > 0 ? (
         <h1 className={css.title}>
           <FormattedMessage
-            id="ManageListingsPage.youHaveListings"
+            id="ManageListingsPage.youHaveMyWishlist"
             values={{ count: pagination.totalItems }}
           />
         </h1>
@@ -91,7 +100,7 @@ export class ManageListingsPageComponent extends Component {
       listingsAreLoaded && pagination && pagination.totalPages > 1 ? (
         <PaginationLinks
           className={css.pagination}
-          pageName="ManageListingsPage"
+          pageName="MyWishlistPage"
           pageSearchParams={{ page }}
           pagination={pagination}
         />
@@ -115,8 +124,8 @@ export class ManageListingsPageComponent extends Component {
       <Page title={title} scrollingDisabled={scrollingDisabled}>
         <LayoutSingleColumn>
           <LayoutWrapperTopbar>
-            <TopbarContainer currentPage="ManageListingsPage" />
-            <UserNav selectedPageName="ManageListingsPage" />
+            <TopbarContainer currentPage="MyWishlistPage" />
+            <UserNav selectedPageName="MyWishlistPage" />
           </LayoutWrapperTopbar>
           <LayoutWrapperMain>
             {queryInProgress ? loadingResults : null}
@@ -137,7 +146,7 @@ export class ManageListingsPageComponent extends Component {
                     hasOpeningError={openingErrorListingId.uuid === l.id.uuid}
                     hasClosingError={closingErrorListingId.uuid === l.id.uuid}
                     renderSizes={renderSizes}
-                    isEdited={true}
+                    isEdited={false}
                   />
                 ))}
               </div>
@@ -153,7 +162,7 @@ export class ManageListingsPageComponent extends Component {
   }
 }
 
-ManageListingsPageComponent.defaultProps = {
+MyWishlistPageComponent.defaultProps = {
   listings: [],
   pagination: null,
   queryListingsError: null,
@@ -164,16 +173,15 @@ ManageListingsPageComponent.defaultProps = {
   openingListingError: null,
 };
 
-const { arrayOf, bool, func, object, shape, string } = PropTypes;
+const { arrayOf, bool, func, object, shape, string, array } = PropTypes;
 
-ManageListingsPageComponent.propTypes = {
+MyWishlistPageComponent.propTypes = {
   closingListing: shape({ uuid: string.isRequired }),
   closingListingError: shape({
     listingId: propTypes.uuid.isRequired,
     error: propTypes.error.isRequired,
   }),
-  listings: arrayOf(propTypes.ownListing),
-  listings: array.isRequired,
+  listings: arrayOf(propTypes.listing),
   onCloseListing: func.isRequired,
   onOpenListing: func.isRequired,
   openingListing: shape({ uuid: string.isRequired }),
@@ -182,6 +190,7 @@ ManageListingsPageComponent.propTypes = {
     error: propTypes.error.isRequired,
   }),
   pagination: propTypes.pagination,
+  listings: propTypes.array,
   queryInProgress: bool.isRequired,
   queryListingsError: propTypes.error,
   queryParams: object,
@@ -195,6 +204,7 @@ ManageListingsPageComponent.propTypes = {
 const mapStateToProps = state => {
   const {
     currentPageResultIds,
+    listings,
     pagination,
     queryInProgress,
     queryListingsError,
@@ -203,9 +213,9 @@ const mapStateToProps = state => {
     openingListingError,
     closingListing,
     closingListingError,
-  } = state.ManageListingsPage;
+  } = state.MyWishlistPage;
 
-  const listings = getOwnListingsById(state, currentPageResultIds);
+  const { currentUser } = state.user;
 
   return {
     currentPageResultIds,
@@ -219,20 +229,22 @@ const mapStateToProps = state => {
     openingListingError,
     closingListing,
     closingListingError,
+    currentUser,
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   onCloseListing: listingId => dispatch(closeListing(listingId)),
   onOpenListing: listingId => dispatch(openListing(listingId)),
+  onGetMyWishList: wishlists => dispatch(queryMyWishList(wishlists)),
 });
 
-const ManageListingsPage = compose(
+const MyWishlistPage = compose(
   connect(
     mapStateToProps,
     mapDispatchToProps
   ),
   injectIntl
-)(ManageListingsPageComponent);
+)(MyWishlistPageComponent);
 
-export default ManageListingsPage;
+export default MyWishlistPage;

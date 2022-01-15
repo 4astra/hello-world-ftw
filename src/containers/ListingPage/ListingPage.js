@@ -39,7 +39,6 @@ import {
   LayoutWrapperFooter,
   Footer,
   BookingPanel,
-  Button,
 } from '../../components';
 import { TopbarContainer, NotFoundPage } from '../../containers';
 

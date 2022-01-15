@@ -124,6 +124,7 @@ export const ManageListingCardComponent = props => {
     onToggleMenu,
     renderSizes,
     availabilityEnabled,
+    isEdited
   } = props;
   const classes = classNames(rootClassName || css.root, className);
   const currentListing = ensureOwnListing(listing);
@@ -339,15 +340,17 @@ export const ManageListingCardComponent = props => {
         </div>
 
         <div className={css.manageLinks}>
-          <NamedLink
-            className={css.manageLink}
-            name="EditListingPage"
-            params={{ id, slug, type: editListingLinkType, tab: 'description' }}
-          >
-            <FormattedMessage id="ManageListingCard.editListing" />
-          </NamedLink>
+          {isEdited ? (
+            <NamedLink
+              className={css.manageLink}
+              name="EditListingPage"
+              params={{ id, slug, type: editListingLinkType, tab: 'description' }}
+            >
+              <FormattedMessage id="ManageListingCard.editListing" />
+            </NamedLink>
+          ) : null}
 
-          {availabilityEnabled ? (
+          {availabilityEnabled && isEdited ? (
             <React.Fragment>
               <span className={css.manageLinksSeparator}>{' • '}</span>
 
@@ -389,6 +392,7 @@ ManageListingCardComponent.propTypes = {
   onOpenListing: func.isRequired,
   onToggleMenu: func.isRequired,
   availabilityEnabled: bool,
+  isEdited: bool.isRequired,
 
   // Responsive image sizes hint
   renderSizes: string,

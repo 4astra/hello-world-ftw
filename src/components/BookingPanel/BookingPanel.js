@@ -69,7 +69,7 @@ const BookingPanel = props => {
     lineItems,
     fetchLineItemsInProgress,
     fetchLineItemsError,
-    onAddWishlist
+    onAddWishlist,
   } = props;
 
   const price = listing.attributes.price;
@@ -137,12 +137,17 @@ const BookingPanel = props => {
             fetchLineItemsError={fetchLineItemsError}
           />
         ) : null}
-        <div className={css.addToWishlistTop}></div>
-        <Button rootClassName={css.onAddToWishList} onClick={onAddWishlist}>
-          <FormattedMessage id="ListingPage.addToWishlist" />
-        </Button>
+        {/* Add to Wishlist */}
+        {!isBook && !isOwnListing ? (
+          <div>
+            <div className={css.addToWishlistTop}></div>
+            <Button rootClassName={css.addToWishlist} onClick={onAddWishlist}>
+              <FormattedMessage id="ListingPage.addToWishlist" />
+            </Button>
+          </div>
+        ) : null}
       </ModalInMobile>
-      <div className={css.openBookingForm}>
+      <div className={isOwnListing ? css.openBookingForm : css.hasWishlistButton}>
         <div className={css.priceContainer}>
           <div className={css.priceValue} title={priceTitle}>
             {formattedPrice}
@@ -164,10 +169,15 @@ const BookingPanel = props => {
             <FormattedMessage id="BookingPanel.closedListingButtonText" />
           </div>
         ) : null}
-        <div className={css.addToWishlistTop}></div>
-        <Button rootClassName={css.onAddToWishList} onClick={onAddWishlist}>
-          <FormattedMessage id="ListingPage.addToWishlist" />
-        </Button>
+        {/* Add to Wishlist */}
+        {!isOwnListing ? (
+          <div>
+            <div className={css.addToWishlistTop}></div>
+            <Button rootClassName={css.addToWishlist} onClick={onAddWishlist}>
+              <FormattedMessage id="ListingPage.addToWishlist" />
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

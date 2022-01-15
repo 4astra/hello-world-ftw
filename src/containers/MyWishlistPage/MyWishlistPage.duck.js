@@ -1,6 +1,5 @@
 import { updatedEntities, denormalisedEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
-import { parse } from '../../util/urlHelpers';
 import _ from 'lodash';
 // Pagination page size might need to be dynamic on responsive page layouts
 // Current design has max 3 columns 42 is divisible by 2 and 3
@@ -11,6 +10,7 @@ const RESULT_PAGE_SIZE = 42;
 
 export const FETCH_LISTINGS_REQUEST = 'app/ManageListingsPage/FETCH_LISTINGS_REQUEST';
 export const FETCH_LISTINGS_SUCCESS = 'app/ManageListingsPage/FETCH_LISTINGS_SUCCESS';
+export const FETCH_MY_WISHLIST_SUCCESS = 'app/ManageListingsPage/FETCH_MY_WISHLIST_SUCCESS';
 export const FETCH_LISTINGS_ERROR = 'app/ManageListingsPage/FETCH_LISTINGS_ERROR';
 
 export const OPEN_LISTING_REQUEST = 'app/ManageListingsPage/OPEN_LISTING_REQUEST';
@@ -62,7 +62,7 @@ const updateListingAttributes = (state, listingEntity) => {
   };
 };
 
-const manageListingsPageReducer = (state = initialState, action = {}) => {
+const myWishlistPageReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;
   switch (type) {
     case FETCH_LISTINGS_REQUEST:
@@ -80,6 +80,13 @@ const manageListingsPageReducer = (state = initialState, action = {}) => {
         pagination: payload.data.meta,
         listings: payload.data.data,
         queryInProgress: false,
+      };
+    case FETCH_MY_WISHLIST_SUCCESS:
+      console.log('Current my listing: ', state.listings);
+      console.log('Current my wish listing: ', payload.data.data);
+      return {
+        ...state,
+        listings: payload.data.data,
       };
     case FETCH_LISTINGS_ERROR:
       // eslint-disable-next-line no-console
@@ -142,7 +149,7 @@ const manageListingsPageReducer = (state = initialState, action = {}) => {
   }
 };
 
-export default manageListingsPageReducer;
+export default myWishlistPageReducer;
 
 // ================ Selectors ================ //
 
@@ -225,25 +232,31 @@ export const queryListingsError = e => ({
   payload: e,
 });
 
-// Throwing error for new (loadData may need that info)
-export const queryOwnListings = queryParams => (dispatch, getState, sdk) => {
-  dispatch(queryListingsRequest(queryParams));
-  const { perPage, ...rest } = queryParams;
-  const params = { ...rest, per_page: perPage };
+export const queryMyWishList = queryParams => (dispatch, getState, sdk) => {
+  const privateData =
+    queryParams && queryParams.attributes ? queryParams.attributes.profile.privateData : null;
+  if (!_.isEmpty(privateData)) {
+    let wishlist = privateData['wishlist'].split(',');
+    const params = { ids: wishlist, per_page: null };
 
-  return sdk.ownListings
-    .query(params)
-    .then(response => {
-      dispatch(addOwnEntities(response));
-      dispatch(queryListingsSuccess(response));
-      return response;
-    })
-    .catch(e => {
-      dispatch(queryListingsError(storableError(e)));
-      throw e;
-    });
+    return sdk.listings
+      .query({
+        ...params,
+        include: ['images'],
+        'fields.image': ['variants.landscape-crop', 'variants.landscape-crop2x'],
+        'limit.images': 1,
+      })
+      .then(response => {
+        dispatch(queryListingsSuccess(response));
+        // dispatch(addOwnEntities(response));
+        return response.data.data;
+      })
+      .catch(e => {
+        dispatch(queryListingsError(storableError(e)));
+        throw e;
+      });
+  }
 };
-
 
 export const closeListing = listingId => (dispatch, getState, sdk) => {
   dispatch(closeListingRequest(listingId));
@@ -273,15 +286,4 @@ export const openListing = listingId => (dispatch, getState, sdk) => {
     });
 };
 
-export const loadData = (params, search) => {
-  const queryParams = parse(search);
-  const page = queryParams.page || 1;
-  return queryOwnListings({
-    ...queryParams,
-    page,
-    perPage: RESULT_PAGE_SIZE,
-    include: ['images'],
-    'fields.image': ['variants.landscape-crop', 'variants.landscape-crop2x'],
-    'limit.images': 1,
-  });
-};
+export const loadData = () => {};

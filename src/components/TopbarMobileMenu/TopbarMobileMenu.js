@@ -93,6 +93,13 @@ const TopbarMobileMenu = props => {
           {notificationCountBadge}
         </NamedLink>
         <NamedLink
+          className={classNames(css.navigationLink, currentPageClass('MyWishlistPage'))}
+          name="MyWishlistPage"
+        >
+          <FormattedMessage id="TopbarDesktop.myWishlist" />
+        </NamedLink>
+
+        <NamedLink
           className={classNames(css.navigationLink, currentPageClass('ManageListingsPage'))}
           name="ManageListingsPage"
         >

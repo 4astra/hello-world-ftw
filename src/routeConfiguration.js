@@ -36,6 +36,7 @@ const FAQPage = loadable(() =>
     /* webpackChunkName: "FAQPage" */ './containers/FAQPage/FAQPage'
   )
 );
+const MyWishlistPage = loadable(() => import(/* webpackChunkName: "MyWishlistPage" */ './containers/MyWishlistPage/MyWishlistPage'));
 
 // Styleguide helps you to review current components and develop new ones
 const StyleguidePage = loadable(() => import(/* webpackChunkName: "StyleguidePage" */ './containers/StyleguidePage/StyleguidePage'));
@@ -354,6 +355,13 @@ const routeConfiguration = () => {
       path: '/faq',
       name: 'FAQPage',
       component: FAQPage,
+    },
+    {
+      path: '/my-wishlist',
+      name: 'MyWishlistPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: MyWishlistPage,
     },
   ];
 };

@@ -153,6 +153,31 @@
   }
 }
 
+.hasWishlistButton {
+  z-index: 9;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  padding: 18px 24px 18px 16px;
+  background-color: var(--matterColorLight);
+  box-shadow: var(--boxShadowTop);
+  display: flex;
+  flex-direction: column;
+
+  /* Contain repainting to this component only */
+  /* 3D painting container helps scrolling */
+  transform: translate3d(0, 0, 0);
+
+  @media (--viewportMedium) {
+    padding: 18px 60px 18px 60px;
+  }
+
+  @media (--viewportLarge) {
+    display: none;
+  }
+}
+
 .priceContainer {
   /* Layout */
   display: flex;
@@ -204,14 +229,8 @@
 }
 
 .addToWishlist {
-  @apply --marketplaceTinyFontStyles;
-  font-weight: var(--fontWeightMedium);
+  @apply --marketplaceButtonStylesSecondary;
 
-  @apply --marketplaceButtonStylesPrimary;
-
-  /* Clear padding that is set for link elements looking like buttons */
-  /* padding: 0; */
-  /* margin-top: 20px; */
   padding: 0;
 }
 
