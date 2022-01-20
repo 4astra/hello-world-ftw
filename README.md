@@ -13,6 +13,8 @@ Time works: 5 hours
 Firstly, we can run an event polling in a separate Node.js app to update review average to listings.
 This review average is stored on metadata of each listing. Then, we can use it on front-end page
 
+Script file: events-api-script/notify-new-rating.js
+
 Time work: 3 hours
 
 ### Instant booking
